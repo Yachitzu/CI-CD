@@ -1,9 +1,11 @@
 name: CI/CD Pipeline for GitHub Pages
 
+# Controlar cuándo se ejecuta el flujo de trabajo
 on:
   push:
     branches:
       - main
+      - '**/feature/*'
   pull_request:
     branches:
       - main
@@ -49,19 +51,14 @@ jobs:
   merge:
     needs: build_and_test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Merge changes
-      run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git fetch origin
-        git checkout main
-        git merge ${{ github.sha }}
-        git push origin main
+    - name: Merge pull request
+      run: gh pr merge ${{ github.event.pull_request.number }} --merge
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
