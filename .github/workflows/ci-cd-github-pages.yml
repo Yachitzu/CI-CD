@@ -8,6 +8,7 @@ on:
   pull_request:
     branches:
       - main
+      - '**/feature/*'
 
 jobs:
   build_and_test:
@@ -51,7 +52,7 @@ jobs:
       env:
         GH_PAT: ${{ secrets.GH_PAT }}
 
-  deploy:
+  deploy_main:
     needs: build_and_test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
@@ -66,3 +67,19 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./build
         publish_branch: gh-pages
+
+  deploy_feature:
+    needs: build_and_test
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/heads/feature/')
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Deploy to GitHub Pages (feature branch)
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./build
+        publish_branch: 'gh-pages-${{ github.ref_name }}'
