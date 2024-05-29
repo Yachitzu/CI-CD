@@ -1,6 +1,5 @@
 name: CI/CD Pipeline for GitHub Pages
 
-# Controlar cuándo se ejecuta el flujo de trabajo
 on:
   push:
     branches:
@@ -41,8 +40,8 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up GitHub CLI
-      uses: cli/gh-actions@v2
+    - name: Install GitHub CLI
+      run: sudo apt-get install gh
 
     - name: Merge pull request
       run: gh pr merge ${{ github.event.pull_request.number }} --merge --admin
