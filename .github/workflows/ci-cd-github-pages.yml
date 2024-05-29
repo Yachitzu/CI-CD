@@ -43,10 +43,13 @@ jobs:
     - name: Install GitHub CLI
       run: sudo apt-get install gh
 
+    - name: Authenticate with GitHub CLI
+      run: echo ${{ secrets.GH_PAT }} | gh auth login --with-token
+
     - name: Merge pull request
       run: gh pr merge ${{ github.event.pull_request.number }} --merge --admin
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_PAT: ${{ secrets.GH_PAT }}
 
   deploy:
     needs: build_and_test
