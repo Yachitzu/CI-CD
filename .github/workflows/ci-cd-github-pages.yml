@@ -35,17 +35,19 @@ jobs:
   merge:
     needs: build_and_test
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    if: github.event.pull_request.merged == false
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Set up GitHub CLI
+      uses: cli/gh-actions@v2
+
     - name: Merge pull request
-      run: gh pr merge ${{ github.event.pull_request.number }} --merge
+      run: gh pr merge ${{ github.event.pull_request.number }} --merge --admin
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
     needs: build_and_test
@@ -62,5 +64,3 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./build
         publish_branch: gh-pages
-
- 
