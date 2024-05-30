@@ -49,7 +49,7 @@ jobs:
         GH_PAT: ${{ secrets.GH_PAT }}
 
   deploy:
-    needs: [merge]
+    needs: [build_and_test, merge]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true)
 
@@ -80,7 +80,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
   deploy_feature:
-    needs: [merge]
+    needs: [build_and_test, merge]
     runs-on: ubuntu-latest
     if: github.ref== 'refs/heads/feature/' || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true)
 
