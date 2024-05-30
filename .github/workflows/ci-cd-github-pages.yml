@@ -31,7 +31,28 @@ jobs:
     - name: Build project
       run: npm run build
 
+<<<<<<< HEAD
+  
   merge:
+    needs: build_and_test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Merge pull request
+      run: gh pr merge ${{ github.event.pull_request.number }} --merge
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
+
+  deploy:
+=======
+  merge:
+>>>>>>> 535f8df21cc582617bc4063fc9b342038a30418e
     needs: build_and_test
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
@@ -65,6 +86,9 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+<<<<<<< HEAD
+  
+=======
   deploy_feature:
     needs: build_and_test
     runs-on: ubuntu-latest
@@ -81,3 +105,4 @@ jobs:
       with:
         publish_dir: ./build
         publish_branch: 'gh-pages-${{ github.ref_name }}'
+>>>>>>> 535f8df21cc582617bc4063fc9b342038a30418e
