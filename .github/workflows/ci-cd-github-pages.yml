@@ -31,7 +31,7 @@ jobs:
   merge:
     needs: build_and_test
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    if:  github.event.pull_request.merged == false
 
     steps:
     - name: Checkout code
