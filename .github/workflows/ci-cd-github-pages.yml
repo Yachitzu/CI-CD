@@ -49,7 +49,7 @@ jobs:
         GH_PAT: ${{ secrets.GH_PAT }}
 
   deploy:
-    needs: [build_and_test, merge]
+    needs: [merge]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
 
@@ -80,7 +80,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
   deploy_feature:
-    needs: [build_and_test, merge]
+    needs: [merge]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/heads/feature/')
 
