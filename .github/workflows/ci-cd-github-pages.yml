@@ -80,9 +80,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
   deploy_feature:
-    needs: build_and_test
+    needs: [merge]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/feature/')
+    if: startsWith(github.ref, 'refs/heads/feature/' || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true)
 
 
     steps:
