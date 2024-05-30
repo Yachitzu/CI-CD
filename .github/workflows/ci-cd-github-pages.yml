@@ -72,7 +72,7 @@ jobs:
     - name: Deploy to GitHub Pages
       run: npm run deploy
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_PAT }}
 
   deploy_feature:
     needs: build_and_test
@@ -99,6 +99,6 @@ jobs:
     - name: Deploy to GitHub Pages (feature branch)
       run: npm run deploy
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_PAT }}
         PUBLISH_DIR: ./build
         PUBLISH_BRANCH: gh-pages-${{ github.ref_name }}
