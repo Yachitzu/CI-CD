@@ -1,5 +1,6 @@
 name: CI/CD Pipeline for GitHub Pages
 
+# Controlar cuándo se ejecuta el flujo de trabajo
 on:
   push:
     branches:
@@ -8,7 +9,6 @@ on:
   pull_request:
     branches:
       - main
-      - '**/feature/*'
 
 jobs:
   build_and_test:
@@ -32,27 +32,24 @@ jobs:
     - name: Build project
       run: npm run build
 
+  
   merge:
     needs: build_and_test
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == false
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install GitHub CLI
-      run: sudo apt-get install gh
-
-    - name: Authenticate with GitHub CLI
-      run: echo ${{ secrets.GH_PAT }} | gh auth login --with-token
-
     - name: Merge pull request
-      run: gh pr merge ${{ github.event.pull_request.number }} --merge --admin
+      run: gh pr merge ${{ github.event.pull_request.number }} --merge
       env:
-        GH_PAT: ${{ secrets.GH_PAT }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
 
-  deploy_main:
+  deploy:
     needs: build_and_test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
@@ -68,18 +65,4 @@ jobs:
         publish_dir: ./build
         publish_branch: gh-pages
 
-  deploy_feature:
-    needs: build_and_test
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/feature/')
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Deploy to GitHub Pages (feature branch)
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./build
-        publish_branch: 'gh-pages-${{ github.ref_name }}'
+  
