@@ -34,7 +34,7 @@ jobs:
   merge:
     needs: build_and_test
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == false
 
     steps:
     - name: Checkout code
@@ -52,32 +52,17 @@ jobs:
         GH_PAT: ${{ secrets.GH_PAT }}
 
   deploy:
-    needs: [build_and_test, merge]
+    needs: build_and_test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true)
+    if: github.ref == 'refs/heads/main'
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
     - name: Deploy to GitHub Pages
-      run: npm run deploy
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  deploy_feature:
-    needs: build_and_test
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/feature/')
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Deploy to GitHub Pages (feature branch)
-      run: npm run deploy
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: peaceiris/actions-gh-pages@v3
       with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./build
-        publish_branch: 'gh-pages-${{ github.ref_name }}'
+        publish_branch: gh-pages
