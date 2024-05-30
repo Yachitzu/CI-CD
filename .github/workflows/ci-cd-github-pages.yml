@@ -20,16 +20,13 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '14'
+        node-version: '16'
 
-    - name: Install dependencies
-      run: npm install
-
-    - name: Run tests
-      run: npm test
-
-    - name: Build project
-      run: npm run build
+    - name: Install dependencies and run tests
+      run: |
+        npm install
+        npm test
+        npm run build
 
   merge:
     needs: build_and_test
@@ -52,48 +49,71 @@ jobs:
         GH_PAT: ${{ secrets.GH_PAT }}
 
   deploy:
-    needs: [build_and_test, merge]
+    needs: [merge]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true)
 
     steps:
+    - name: Set Git user identity
+      run: |
+         git config --global user.email "tefamora6@gmail.com"
+         git config --global user.name "yachitzu"
     - name: Checkout code
       uses: actions/checkout@v2
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '14'
+        node-version: '16'
 
     - name: Install dependencies
       run: npm install
 
+    - name: Configure Git to use GitHub token
+      run: |
+        git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}
+
+
     - name: Deploy to GitHub Pages
       run: npm run deploy
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
   deploy_feature:
     needs: build_and_test
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/heads/feature/')
 
+
     steps:
+    - name: Set Git user identity
+      run: |
+         git config --global user.email "tefamora6@gmail.com"
+         git config --global user.name "yachitzu"
     - name: Checkout code
       uses: actions/checkout@v2
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '14'
+        node-version: '16'
 
     - name: Install dependencies
       run: npm install
+      
+    - name: Configure Git to use GitHub token
+      run: |
+        git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}
+
+
+    - name: Set environment variables for deployment
+      run: |
+        echo "PUBLISH_DIR=./build" >> $GITHUB_ENV
+        echo "PUBLISH_BRANCH=gh-pages-${{ github.ref_name }}" >> $GITHUB_ENV
 
     - name: Deploy to GitHub Pages (feature branch)
       run: npm run deploy
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        publish_dir: ./build
-        publish_branch: 'gh-pages-${{ github.ref_name }}'
+        GITHUB_TOKEN: ${{ secrets.GITHUB_PAT }}
+        PUBLISH_DIR: ./build
+        PUBLISH_BRANCH: gh-pages-${{ github.ref_name }}
