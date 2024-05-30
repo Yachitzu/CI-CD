@@ -22,14 +22,11 @@ jobs:
       with:
         node-version: '16'
 
-    - name: Install dependencies
-      run: npm install
-
-    - name: Run tests
-      run: npm test
-
-    - name: Build project
-      run: npm run build
+    - name: Install dependencies and run tests
+      run: |
+        npm install
+        npm test
+        npm run build
 
   merge:
     needs: build_and_test
@@ -52,7 +49,7 @@ jobs:
         GH_PAT: ${{ secrets.GH_PAT }}
 
   deploy:
-    needs: [build_and_test, merge]
+    needs: [merge]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true)
 
@@ -91,9 +88,9 @@ jobs:
       run: npm install
 
     - name: Set environment variables for deployment
-      run: echo "PUBLISH_DIR=./build" >> $GITHUB_ENV
-    - name: Set branch-specific environment variable
-      run: echo "PUBLISH_BRANCH=gh-pages-${{ github.ref_name }}" >> $GITHUB_ENV
+      run: |
+        echo "PUBLISH_DIR=./build" >> $GITHUB_ENV
+        echo "PUBLISH_BRANCH=gh-pages-${{ github.ref_name }}" >> $GITHUB_ENV
 
     - name: Deploy to GitHub Pages (feature branch)
       run: npm run deploy
