@@ -57,7 +57,7 @@ jobs:
     - name: Set Git user identity
       run: |
          git config --global user.email "tefamora6@gmail.com"
-         git config --global user.name "Yachitzu"
+         git config --global user.name "Estefanía Mora"
     - name: Checkout code
       uses: actions/checkout@v2
 
